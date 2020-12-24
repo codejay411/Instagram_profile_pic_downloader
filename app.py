@@ -1,15 +1,13 @@
 import requests
-from bs4 import BeautifulSoup as bs
-import json
 from flask import request
 import os
 import random
-import os.path
-import urllib.request as urllib2
+from instascrape import Profile
 
 from flask import Flask, render_template
 import sys
 import logging
+from instascrape import Profile 
 app = Flask(__name__)
 
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -21,41 +19,17 @@ def home():
 
 @app.route('/insta', methods=["POST"])
 def insta():
-    insta_url = 'https://www.instagram.com/'
     mydict=request.form
     insta_username=str(mydict['name'])
-    # url
-    url=insta_url+insta_username
-    r=requests.get(url)
-    source=r.content
-    # source = urllib2.urlopen(url)
-    soup = bs(source, 'lxml')
-    # print(soup)
-    #image_link=soup.find_all("meta")[15].get('content')
-    image_link=soup.find("meta",  property="og:image")["content"]
+
+    google = Profile(insta_username)
+    google.scrape(keys=['profile_pic_url_hd'])
+    print(google['profile_pic_url_hd'])
+    image_link=google['profile_pic_url_hd']
+
+
     # render on the template
     return render_template('index.html', image_link=image_link)
-
-    # insta_url = 'https://www.instagram.com/'
-    # if (request.method == "POST"):
-    #     mydict=request.form
-    #     insta_username=str(mydict['name'])
-
-    #     # url
-    #     url=insta_url+insta_username
-
-    #     r=requests.get(url)
-    #     source=r.content
-    #     # source = urllib2.urlopen(url)
-    #     soup = bs(source, 'lxml')
-    #     # print(soup)
-    #     image_link=soup.find_all("meta")[15].attrs['content']
-        
-        
-
-        # render on the template
-    #     return render_template('index.html', image_link=image_link)
-    # return render_template('index.html')
 
 
 
